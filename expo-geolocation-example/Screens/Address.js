@@ -3,13 +3,17 @@ import { StyleSheet, View, Text, TextInput, Alert, Button, Image, TouchableOpaci
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { initDatabase, saveAccidentData } from '../database/db';
+import { Picker } from '@react-native-picker/picker';
 
 
 const Address = ({ navigation }) => {
   const [highwayNumber, setHighwayNumber] = useState('');
   const [displayCurrentAddress, setDisplayCurrentAddress] = useState('');
   const [initialRegion, setInitialRegion] = useState(null);
+  const [selectedEmergency, setSelectedEmergency] = useState('');
+  
 
+  //console.log(highwayNumber);
   useEffect(() => {
     initDatabase();
     getLocation();
@@ -27,7 +31,7 @@ const Address = ({ navigation }) => {
       return;
     }
 
-    let { coords } = await Location.getCurrentPositionAsync({});
+    let { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
     if (coords) {
       try {
         const response = await fetch(
@@ -60,10 +64,10 @@ const Address = ({ navigation }) => {
   const fetchNearbyRoads = async (latitude, longitude) => {
     try {
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=3000&type=route&key=AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU&libraries=places`
+        `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=15000&type=route&key=AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU&libraries=places`
       );
       const data = await response.json();
-      //console.log(data);
+      console.log(data);
 
       if (data.results.length > 0) {
         // Get the highway number from the first nearby road
@@ -103,8 +107,10 @@ const Address = ({ navigation }) => {
   };
   //console.log(highwayNumber);
   const openAddressOnMap = () => {
-    const addressURI = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayCurrentAddress)}`;
-    Linking.openURL(addressURI);
+    navigation.navigate('HighwayAmenities', {
+      latitude: initialRegion.latitude,
+      longitude: initialRegion.longitude
+    });
   };
 
   const handleGetHelp = async () => {
@@ -123,6 +129,13 @@ const Address = ({ navigation }) => {
       );
       return;
     }
+
+    if (!selectedEmergency) {
+      Alert.alert('Error', 'Please select an emergency type.');
+      return;
+    }
+
+    if (selectedEmergency === 'Accident'){
     try {
       // Save accident data to SQLite database
       saveAccidentData(displayCurrentAddress, highwayNumber, initialRegion.latitude, initialRegion.longitude);
@@ -131,11 +144,34 @@ const Address = ({ navigation }) => {
     } catch (err) {
       console.error('Error saving accident data:', err);
     }
-  };
+  } else if (selectedEmergency === 'Vehicle Breakdown') {
+    navigation.navigate('VehicleBreakdownPage', {
+      latitude: initialRegion.latitude,
+      longitude: initialRegion.longitude,
+      highwayName: highwayNumber,
+      currentAddress: displayCurrentAddress,
+    });
+  }
+  else if (selectedEmergency === 'Lockout') {
+    navigation.navigate('lockout');
+  } 
+  else if (selectedEmergency === 'Fuel Shortage') {
+    navigation.navigate('FuelShortage' ,{ latitude: initialRegion.latitude, longitude: initialRegion.longitude });
+  }
+  else if (selectedEmergency === 'Fire') {
+    navigation.navigate('FireEmergency' ,{ latitude: initialRegion.latitude, longitude: initialRegion.longitude });
+  } 
+  else if (selectedEmergency === 'Lost or Stranded') {
+    navigation.navigate('LostorStranded' ,{ latitude: initialRegion.latitude, longitude: initialRegion.longitude ,HighwayName : highwayNumber , currentAddress : displayCurrentAddress });
+  } 
+   else {
+    Alert.alert('Notice', 'Currently, only accident and vehicle breakdown emergencies are supported.');
+  }
+};
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={initialRegion} showsUserLocation={true}  >
+      <MapView style={styles.map} region={initialRegion} showsUserLocation={true}  >
         {initialRegion && (
           <Marker
             coordinate={{
@@ -160,12 +196,35 @@ const Address = ({ navigation }) => {
           value={highwayNumber}
           onChangeText={setHighwayNumber}
         />
+      </View>
+
+      <View style={styles.actionContainer}>
+        <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedEmergency}
+          style={styles.picker}
+          onValueChange={(itemValue) => setSelectedEmergency(itemValue)}
+        >
+          <Picker.Item label="Select Emergency Type" value="" />
+          <Picker.Item label="Vehicle Breakdown" value="Vehicle Breakdown" />
+          <Picker.Item label="Accident" value="Accident" />
+          <Picker.Item label="Health Issues" value="Health Issues" />
+          <Picker.Item label="Lost or Stranded" value="Lost or Stranded" />
+          <Picker.Item label="Natural Disasters" value="Natural Disasters" />
+          <Picker.Item label="Tire Puncture" value="Tire Puncture" />
+          <Picker.Item label="Fuel Shortage" value="Fuel Shortage" />
+          <Picker.Item label="Lockout" value="Lockout" />
+          <Picker.Item label="Fire" value="Fire" />
+          <Picker.Item label="Severe Weather" value="Severe Weather" />
+        </Picker>
+        </View>
+
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={handleGetHelp}>
             <Text style={styles.buttonText}>Get Help</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={openAddressOnMap}>
-            <Text style={styles.buttonText}>Open Maps</Text>
+            <Text style={styles.buttonText}>Highway Amenities</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -184,7 +243,7 @@ const styles = StyleSheet.create({
   },
   map: {
     width: width,
-    height: '90%',
+    height: '80%',
   },
   headerContainer: {
     position: 'absolute',
@@ -207,23 +266,46 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: 'absolute',
-    bottom: 20,
-    width: width,
+    top: '65%',
+    width: '80%',
     alignItems: 'center',
   },
   input: {
-    width: '80%',
+    width: '100%',
     height: 40,
     borderWidth: 1,
     borderColor: '#ccc',
     borderRadius: 5,
     paddingHorizontal: 10,
     marginBottom: 10,
+    backgroundColor: '#fff',
+  },
+  actionContainer: {
+      position: 'absolute',
+      bottom: 20,
+      width: '100%',
+      alignItems: 'center',
+      backgroundColor: '#33A2FF',
+      padding: 20,
+      borderRadius: 20,
+      elevation: 5,
+  },
+  pickerContainer: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    elevation: 5,
+    marginBottom: 10,
+  },
+  picker: {
+    width: '100%',
+    height: 50,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    width: '80%',
+    width: '100%',
+    marginTop: 10,
   },
   button: {
     backgroundColor: '#FD0139',
