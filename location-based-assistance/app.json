@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "expo-geolocation-example",
-    "slug": "expo-geolocation-example",
+    "name": "LocationBasedAssistance",
+    "slug": "location-based-assistance",
     "version": "1.0.0",
+    "description":"A mobile app for location-based assistance, providing nearby hospitals, toll plazas, and emergency services.",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -22,15 +23,15 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.abhinavj2411.expogeolocationexample"
+      "package": "com.megha.locationbasedassistance",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "extra": {
-      "eas": {
-        "projectId": "f2c21b09-c476-4c2b-81d9-2e2b1d73f044"
-      }
-    }
+    "extra": {}
   }
 }

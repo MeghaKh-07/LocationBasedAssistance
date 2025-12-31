@@ -1,5 +1,7 @@
 export const fetchNearbyHospitals = async (latitude, longitude) => {
-    const API_KEY = 'AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU'; // Replace with your actual API key
+    // TODO: Set GOOGLE_API_KEY in .env file (e.g., GOOGLE_API_KEY=your_key_here)
+    // Then use: const API_KEY = process.env.GOOGLE_API_KEY;
+    const API_KEY = process.env.GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY_PLACEHOLDER'; // Replace with your actual API key from environment
     const radius = 1500; // Search radius in meters (adjust as needed)
 
     try {
@@ -44,7 +46,9 @@ export const fetchNearbyHospitals = async (latitude, longitude) => {
     }
 };
 const fetchHospitalDetails = async (place_id) => {
-    const API_KEY = 'AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU'; // Replace with your actual API key
+    // TODO: Set GOOGLE_API_KEY in .env file (e.g., GOOGLE_API_KEY=your_key_here)
+    // Then use: const API_KEY = process.env.GOOGLE_API_KEY;
+    const API_KEY = process.env.GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY_PLACEHOLDER'; // Replace with your actual API key from environment
 
     try {
         const response = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=name,formatted_address,formatted_phone_number,opening_hours,geometry&key=${API_KEY}`);

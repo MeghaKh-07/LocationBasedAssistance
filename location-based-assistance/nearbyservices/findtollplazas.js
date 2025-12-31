@@ -38,7 +38,9 @@ const getAllHighwaysData = () => {
 }; */
 
 const calculateDistance = async (lat1, lon1, lat2, lon2) => {
-    const apiKey = 'AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU'; // Replace 'YOUR_API_KEY' with your actual API key
+    // TODO: Set GOOGLE_API_KEY in .env file (e.g., GOOGLE_API_KEY=your_key_here)
+    // Then use: const apiKey = process.env.GOOGLE_API_KEY;
+    const apiKey = process.env.GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY_PLACEHOLDER'; // Replace 'YOUR_API_KEY' with your actual API key from environment
     const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${lat1},${lon1}&destinations=${lat2},${lon2}&units=imperial&key=${apiKey}`;
     
     try {
@@ -71,7 +73,7 @@ export const findNearestTollPlaza = async (latitude,longitude,HighwayNumber) => 
             const tollPlazaDataPromises = highwaysData.map(async (highway) => {
                 //console.log(highway);
                 try {
-                    const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(highway.tollPlazaAddress)}&key=AIzaSyCEBGFngMAB5YR1Zynfm6SuKUMwzgfFssU`);
+                    const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(highway.tollPlazaAddress)}&key=${process.env.GOOGLE_API_KEY || 'YOUR_GOOGLE_API_KEY_PLACEHOLDER'}`);
                     const { results } = response.data;
                     if (results && results.length > 0) {
                         const location = results[0].geometry.location;
