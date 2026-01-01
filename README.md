@@ -4,7 +4,7 @@ A location-based assistance app built with Expo and React Native, providing feat
 
 ## Demo
 
-Check out this screen recording demonstrating the app's functionality: [App Demo Video](https://github.com/yourusername/LocationBasedAssistance/releases/download/v1.0/demo.mp4) (replace with your actual video link).
+Check out this screen recording demonstrating the app's functionality: [App Demo Video](https://github.com/MeghaKh-07/LocationBasedAssistance/releases/download/v1.0-demo/1716897380936.mp4)
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Check out this screen recording demonstrating the app's functionality: [App Demo
 
 1. **Clone the repository**:
    ```
-   git clone https://github.com/yourusername/LocationBasedAssistance.git
+   git clone https://github.com/MeghaKh-07/LocationBasedAssistance.git
    cd LocationBasedAssistance
    ```
 
